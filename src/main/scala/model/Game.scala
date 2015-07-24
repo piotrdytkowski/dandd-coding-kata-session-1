@@ -20,9 +20,19 @@ case class Game(grid: Grid, players : List[Player]) {
       case MoveAction(playerId:Int) => {
         val playerOption = players.find(p => p.id == playerId)
         playerOption match {
-          case Some(player) if soTrue(player.nextMove()) => {
-            this.copy (players = players.map(p => { if(p.id == player.id) player.copy(position = player.nextMove()) else p  }))
-
+          case Some(player) if isMoveToCellAllowed(player.getCoordinatesOfNextCell()) => {
+            val nextCell = grid.getCellWithCoordinates(player.getCoordinatesOfNextCell())
+            nextCell match {
+              case c:EmptyCell => {
+                val newPlayers = players.map(p => { if(p.id == player.id) player.copy(position = player.getCoordinatesOfNextCell()) else p  })
+                this.copy (players = newPlayers)
+              }
+              case c:ItemCell => {
+                val newPlayers = players.map(p => { if(p.id == player.id) player.copy(position = player.getCoordinatesOfNextCell(), inventory = c.item :: player.inventory ) else p  })
+                val newGrid = grid.removeItemAtCoordinates(player.getCoordinatesOfNextCell())
+                this.copy(players = newPlayers, grid = newGrid)
+              }
+            }
           }
           case _ => ???
         }
@@ -31,9 +41,10 @@ case class Game(grid: Grid, players : List[Player]) {
 
   }
 
-  def soTrue(coord : (Int, Int)) : Boolean = {
+  def isMoveToCellAllowed(coord : (Int, Int)) : Boolean = {
     grid.cells(coord._1)(coord._2) match {
-      case  c:EmptyCell => {true}
+      case  EmptyCell() => true
+      case  ItemCell() => true
       case _ => false
     }
   }
