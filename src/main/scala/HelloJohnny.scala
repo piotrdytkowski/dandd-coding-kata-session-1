@@ -1,4 +1,4 @@
-import command.{MoveAction, TurnPlayerAction}
+import command.{PlayerAction, MoveAction, TurnPlayerAction}
 import model._
 
 object HelloJohnny extends App {
@@ -25,14 +25,34 @@ object HelloJohnny extends App {
       ItemCell(Item.BONE), EmptyCell(), ItemCell(Item.SCROLL)
     )
   )
-  val listOfCommands = List(TurnPlayerAction(1, RIGHT()), MoveAction(1), TurnPlayerAction(1, DOWN()), MoveAction(1), TurnPlayerAction(1, LEFT()), MoveAction(1))
+  val eventStore = List(
+    TurnPlayerAction(1, RIGHT()),
+    MoveAction(1),
+    TurnPlayerAction(2, LEFT()),
+    MoveAction(2),
+    TurnPlayerAction(2, UP()),
+    MoveAction(2),
+    MoveAction(1),
+    TurnPlayerAction(6, DOWN()),
+    TurnPlayerAction(1, DOWN()),
+    MoveAction(1),
+    TurnPlayerAction(1, LEFT()),
+    MoveAction(1))
 
 
 
-  val game = Game(Grid(array), List(Player(List(), 1, (0, 0), UP())))
+  val game = Game(Grid(array), List((Player(List(), 1), 0, 0, UP()), (Player(List(), 2), 2,2, UP())))
 
-  val resultGame = listOfCommands.foldLeft(game)((g, action) => g.act(action))
-  println(resultGame.grid)
+  val resultGame = {
+    eventStore.foldLeft((game, List[(PlayerAction, Boolean)]()))((g, action) => {
+      val act: (Game, Boolean) = g._1.act(action)
+      println(act._1.grid)
+      (act._1, (action, act._2) :: g._2)
+    })
+  }
+
+  println(resultGame._1.grid)
+  println(resultGame._2.reverse.mkString("", "\n", ""))
 
 
 }
