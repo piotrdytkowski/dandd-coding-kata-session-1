@@ -41,12 +41,13 @@ object HelloJohnny extends App {
 
 
 
-  val game = Game(Grid(array), List((Player(List(), 1), 0, 0, UP()), (Player(List(), 2), 2,2, UP())))
+  val game = Game(Grid(array), List(PlayerPosition(Player(List(), 1), 0, 0, UP()), PlayerPosition(Player(List(), 2), 2,2, UP())))
 
   val resultGame = {
     eventStore.foldLeft((game, List[(PlayerAction, Boolean)]()))((g, action) => {
       val act: (Game, Boolean) = g._1.act(action)
       println(act._1.grid)
+      println()
       (act._1, (action, act._2) :: g._2)
     })
   }
