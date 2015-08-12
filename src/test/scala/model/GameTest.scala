@@ -1,6 +1,6 @@
 package model
 
-import command.TurnPlayerAction
+import command.{MoveAction, TurnPlayerAction}
 import org.scalatest.Matchers
 
 class GameTest extends org.scalatest.FlatSpec with Matchers {
@@ -21,8 +21,23 @@ class GameTest extends org.scalatest.FlatSpec with Matchers {
     result._2 should be (false)
   }
 
+  it should "move the player one cell in the direction it's facing" in {
+    val game = createGameWithSinglePlayer(RIGHT())
+    val result = game.act(MoveAction(1))
+
+    result._1.players(0).x should be (1)
+    result._1.players(0).y should be (0)
+    result._2 should be (true)
+  }
+
+
+
   private def createGameWithSinglePlayer(): Game = {
     Game(createEmptyGrid(), List(PlayerPosition(Player(List(), 1), 0, 0, UP())))
+  }
+
+  private def createGameWithSinglePlayer(direction: Direction): Game = {
+    Game(createEmptyGrid(), List(PlayerPosition(Player(List(), 1), 0, 0, direction)))
   }
 
   private def createEmptyGrid(): Grid = {
